@@ -1,79 +1,86 @@
+<?php
 
-<!DOCTYPE html>
-<html lang="en" dir="ltr">
-  <head>
-    <meta charset="utf-8">
-    <title>prova connessione al database</title>
-    <link rel="stylesheet" href="public/css/app.css">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-    <link rel="stylesheet" href="node_modules/@fortawesome/fontawesome-free/css/all.css">
-  </head>
-
-  <body>
+include 'db_confing.php';
+include 'functions.php';
 
 
-    <?php
+$connessione = connect_database($servername, $username, $password, $dbname);
+if ($connessione && $connessione->connect_error) {
+  echo ('Connessione fallita: '.$connessione->connect_error);
+  exit();
+}
+$sql = "SELECT * FROM stanze";
+$result = $connessione->query($sql);
+?>
 
-      $servername = "localhost";
-      $username = "root";
-      $password = "root";
-      $dbname = "database_hotel";
+<?php include 'layout/_head.php'; ?>
+<?php include 'layout/navbar.php'; ?>
 
-      // http://localhost:8888/db_hotel/index.php
-
-
-      $connessione = new mysqli($servername, $username, $password, $dbname);
-
-      if ($connessione && $connessione->connect_error) {
-      echo ("Connessione fallita: " . $connessione->connect_error);
-      }
-      $sql = "SELECT room_number, floor, beds FROM stanze  ";
-      $result = $connessione->query($sql);
-      if ($result && $result->num_rows > 0) {
-
-        ?>
-
-
-          <div class="container">
-            <h1>Tabella stanze - piano e posti letto</h1>
-            <table class="table">
-              <thead>
-                <tr>
-                  <th>Stanza numero</th>
-                  <th>Piano</th>
-                  <th>Posti letto</th>
-
-                </tr>
-              </thead>
-              <tbody>
-                <?php
-                  while($row = $result->fetch_assoc()){
-                ?>
-                <tr>
-                  <td><?php echo $row['room_number'];
-                  ?></td>
-                  <td><?php echo $row['floor'];
-                ?></td>
-                <td><?php echo $row['beds'];
-              }?></td>
-
-
-
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <?php
-      } elseif ($result) {
-        echo "0 results";
+<div class="container">
+    <div class="row">
+      <h2>Gestione Camere</h2>
+    </div>
+    <div class="row">
+      <?php if ($result && $result->num_rows > 0) { ?>
+        <table class="table table-hover">
+          <thead class="table-bordered thead-dark">
+            <tr>
+              <th class="text-center">ID</th>
+              <th class="text-center">NUMERO CAMERA</th>
+              <th class="text-center">PIANO CAMERE</th>
+              <th class="text-center">LETTI DISPONIBILI</th>
+              <th class="text-center">CREATO IL</th>
+              <th class="text-center">ULTIMA MODIFICA</th>
+              <th class="text-center">ACTION</th>
+            </tr>
+          </thead>
+          <?php while($row = $result->fetch_assoc()) { ?>
+          <tbody>
+            <tr>
+              <td class="text-center"><?php echo $row['id']; ?></td>
+              <td class="text-center"><?php echo $row['room_number']; ?></td>
+              <td class="text-center"><?php echo $row['floor']; ?></td>
+              <td class="text-center"><?php echo $row['beds']; ?></td>
+              <td class="text-center"><?php echo $row['created_at']; ?></td>
+              <td class="text-center"><?php echo $row['updated_at']; ?></td>
+              <td class="text-center">
+                <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                  <label class="btn btn-primary active">
+                    <a href="show.php?id=<?php echo $row['id']; ?>">
+                      <input type="radio" name="options" id="option1" autocomplete="off" checked> INFO
+                    </a>
+                  </label>
+                  <label class="btn btn-primary">
+                    <a href="edit.php?id=<?php echo $row['id']; ?>">
+                      <input type="radio" name="options" id="option2" autocomplete="off"> MODIFICA
+                    </a>
+                  </label>
+                  <label class="btn btn-warning">
+                    <a href="delete.php?id=<?php echo $row['id']; ?>">
+                    <input type="radio" name="options" id="option3" autocomplete="off"> CANCELLAZIONE
+                  </label>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+          <?php } ?>
+        </table>
+      <?php
+      } else if ($result) {
+        echo "Nessun risultato";
       } else {
-        echo "query error";
+        echo "Query error";
       }
-    ?>
+      ?>
+    </div>
+  </div>
 
 
 
-    <script src="public/js/app.js"></script>
 
-  </body>
-</html>
+
+
+
+<?php include 'layout/_footer.php'; ?>
+
+<?php $connessione->close(); ?>

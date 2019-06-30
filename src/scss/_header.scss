@@ -1,0 +1,21 @@
+
+.container{
+  clear:both;
+  overflow:auto;
+
+}
+
+nav{float:right;}
+
+.logo img{float:left;}
+
+ul li{
+  display: inline-block; padding:10px;
+  font-size:15px;font-family: sans-serif;
+  color:#535c68;
+}
+
+ul li:hover{
+  color:#686de0;
+
+}
